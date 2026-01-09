@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileAudio, ArrowRight, BookOpen, Activity, Sparkles, FileText, X, Loader2, Wand2, Download, Printer, Languages, Brain, Heart } from "lucide-react";
+import { Upload, FileAudio, ArrowRight, BookOpen, Activity, Sparkles, FileText, X, Loader2, Wand2, Download, Printer, Languages, Brain, Heart, Mail } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 // --- 1. NEURAL BACKGROUND ---
@@ -117,12 +117,12 @@ const NeuralBackground = () => {
   return <canvas ref={canvasRef} className="fixed inset-0 w-full h-full pointer-events-none opacity-100" />;
 };
 
-// Brain Logo Component
+// Brain Logo Component (animated)
 const BrainLogo = () => (
-  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-white/10 relative overflow-hidden group">
+  <motion.div whileHover={{ scale: 1.06, rotate: 6 }} transition={{ type: 'spring', stiffness: 280, damping: 18 }} className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 border border-white/10 relative overflow-hidden group">
     <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
     <Brain className="w-5 h-5 text-white z-10" />
-  </div>
+  </motion.div>
 );
 
 export default function Home() {
@@ -136,6 +136,7 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [error, setError] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [copiedEmail, setCopiedEmail] = useState(false);
 
   const handleFile = (selectedFile) => {
     if (selectedFile) {
@@ -250,6 +251,32 @@ export default function Home() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText("m.h.ratul18@gmail.com");
+      setCopiedEmail(true);
+      setTimeout(() => setCopiedEmail(false), 1800);
+    } catch (e) {
+      setError("Failed to copy email");
+    }
+  };
+
+  const handleRipple = (e) => {
+    const btn = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const circle = document.createElement('span');
+    const diameter = Math.max(rect.width, rect.height);
+    const radius = diameter / 2;
+    circle.style.width = circle.style.height = `${diameter}px`;
+    const offsetX = e.nativeEvent.clientX - rect.left - radius;
+    const offsetY = e.nativeEvent.clientY - rect.top - radius;
+    circle.style.left = `${offsetX}px`;
+    circle.style.top = `${offsetY}px`;
+    circle.className = 'ripple';
+    btn.appendChild(circle);
+    setTimeout(() => circle.remove(), 650);
   };
 
   return (
@@ -378,7 +405,7 @@ export default function Home() {
                                </div>
                                <p className="text-white font-medium truncate max-w-[200px]">{file.name}</p>
                                <p className="text-xs text-cyan-400 mt-1">Ready to process</p>
-                               <button onClick={(e) => {e.preventDefault(); setFile(null)}} className="mt-4 text-xs text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-full border border-red-500/20">
+                               <button onClick={(e) => {e.preventDefault(); setFile(null)}} onMouseDown={handleRipple} className="mt-4 text-xs text-red-400 hover:text-red-300 bg-red-500/10 px-3 py-1.5 rounded-full border border-red-500/20 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-transform active:scale-95">
                                 Cancel
                                </button>
                             </div>
@@ -404,7 +431,7 @@ export default function Home() {
                              </div>
                              <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
                                 <motion.div 
-                                  className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 shadow-[0_0_10px_#06b6d4]" 
+                                  className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 shadow-[0_0_10px_#06b6d4] progress-glow" 
                                   initial={{ width: 0 }} 
                                   animate={{ width: `${uploadProgress}%` }}
                                   transition={{ type: "spring", stiffness: 50 }} 
@@ -413,15 +440,19 @@ export default function Home() {
                           </div>
                         )}
 
-                        <button
+                        <motion.button
                          onClick={handleAudioSubmit}
                          disabled={!file || loading}
-                         className="mt-4 w-full py-4 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 group/btn relative overflow-hidden"
-                      >
+                         onMouseDown={handleRipple}
+                         whileHover={{ scale: 1.03, y: -3 }}
+                         whileTap={{ scale: 0.98 }}
+                         transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+                         className="mt-4 w-full py-4 rounded-xl font-bold text-sm bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-lg shadow-purple-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 group/btn relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 glow-hover"
+                        >
                           <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
                           {loading ? <Loader2 className="animate-spin w-4 h-4"/> : <Wand2 className="w-4 h-4 group-hover/btn:rotate-12 transition-transform" />}
                           <span className="relative">{loading ? "Listening..." : "Transcribe & Analyze"}</span>
-                      </button>
+                        </motion.button>
                     </motion.div>
                   ) : (
                     <motion.div
@@ -438,15 +469,19 @@ export default function Home() {
                         placeholder="Paste your lecture notes or transcript here..."
                         className="w-full flex-1 bg-black/40 border border-white/10 rounded-xl p-4 text-sm text-gray-200 placeholder-gray-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all resize-none mb-4 font-mono leading-relaxed"
                       />
-                      <button
+                      <motion.button
                         onClick={handleTextSubmit}
                         disabled={!manualTranscript.trim() || loading}
-                        className="w-full py-4 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white shadow-lg shadow-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 group/btn relative overflow-hidden"
+                        onMouseDown={handleRipple}
+                        whileHover={{ scale: 1.03, y: -3 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+                        className="w-full py-4 rounded-xl font-bold text-sm bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white shadow-lg shadow-blue-900/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 group/btn relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 glow-hover"
                       >
                           <div className="absolute inset-0 bg-white/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
                           {loading ? <Loader2 className="animate-spin w-4 h-4"/> : <Sparkles className="w-4 h-4 group-hover/btn:scale-125 transition-transform" />}
                           <span className="relative">{loading ? "Analyzing..." : "Generate Notes"}</span>
-                      </button>
+                      </motion.button>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -475,7 +510,8 @@ export default function Home() {
                    {notes && (
                      <button 
                        onClick={handlePrint}
-                       className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium text-white transition-colors border border-white/10 hover:border-white/30"
+                       onMouseDown={handleRipple}
+                       className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-medium text-white transition-colors border border-white/10 hover:border-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 glow-hover"
                      >
                         <Printer className="w-3.5 h-3.5" />
                         Download PDF
@@ -502,13 +538,14 @@ export default function Home() {
                      <motion.div 
                        initial={{ opacity: 0, y: 10 }}
                        animate={{ opacity: 1, y: 0 }}
+                       whileHover={{ scale: 1.01, y: -6 }}
                        transition={{ duration: 0.5 }}
                        className="prose prose-invert prose-sm md:prose-base max-w-none
                        prose-headings:text-transparent prose-headings:bg-clip-text prose-headings:bg-gradient-to-r prose-headings:from-cyan-100 prose-headings:to-blue-100
                        prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 prose-h2:border-b prose-h2:border-white/10 prose-h2:pb-2
                        prose-strong:text-cyan-400 prose-li:text-gray-300
                        prose-blockquote:border-l-cyan-500 prose-blockquote:bg-cyan-900/10 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg
-                       
+                        
                        /* PRINT OPTIMIZATIONS */
                        print:prose-headings:!text-black print:prose-headings:!bg-none 
                        print:prose-h2:!border-black print:prose-h2:!border-b-2
@@ -566,11 +603,41 @@ export default function Home() {
       </div>
       
       {/* --- FOOTER --- */}
-      <footer className="w-full text-center py-6 text-xs text-gray-500 border-t border-white/5 bg-black/20 print:hidden backdrop-blur-sm mt-auto relative z-20">
-        <p className="flex items-center justify-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
-          Made by <span className="text-cyan-400 font-semibold tracking-wide">Ratul</span>
-        </p>
+      <footer className="w-full print:hidden backdrop-blur-sm mt-auto relative z-20">
+        <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-gray-300 bg-black/20 border-t border-white/5 rounded-t-lg">
+          <p className="flex items-center gap-3 text-gray-400">
+            <span>Made by</span>
+            <span className="text-cyan-400 font-semibold tracking-wide">Mahmud Hasan Ratul</span>
+            <Heart className="w-4 h-4 text-red-500 animate-pulse" />
+            <span className="ml-1 text-xs text-gray-400">2026</span>
+          </p>
+
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <a href="mailto:m.h.ratul18@gmail.com" aria-label="Email Mahmud Hasan Ratul" className="flex items-center gap-2 text-cyan-300 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 rounded">
+                <Mail className="w-4 h-4" />
+                <span className="underline">m.h.ratul18@gmail.com</span>
+              </a>
+              <button onClick={copyEmail} onMouseDown={handleRipple} aria-label="Copy email" className="ml-2 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-sm text-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 glow-hover">
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
       </footer>
+
+      <AnimatePresence>
+        {copiedEmail && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            className="fixed bottom-8 right-8 bg-cyan-700/95 text-white px-4 py-2 rounded-lg shadow-2xl z-50 flex items-center gap-2"
+          >
+            <span className="text-sm font-medium">Email copied!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Error Toast */}
       <AnimatePresence>
@@ -618,6 +685,18 @@ export default function Home() {
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+        /* Ripple effect for buttons */
+        .ripple { position: absolute; border-radius: 50%; transform: scale(0); pointer-events: none; background: rgba(255,255,255,0.14); mix-blend-mode: overlay; animation: ripple 650ms linear; }
+        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+        /* Glow & micro-interaction for primary CTAs */
+        .glow-hover { transition: transform 220ms ease, box-shadow 220ms ease; }
+        .glow-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(6,182,212,0.08), 0 6px 20px rgba(99,102,241,0.06); }
+        .glow-hover:active { transform: translateY(0); }
+
+        /* Progress bar animated gradient */
+        .progress-glow { background-size: 200% 100%; animation: gradientShift 3s linear infinite; }
+        @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
         @media print {
           body * {
