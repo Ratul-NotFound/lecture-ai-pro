@@ -102,6 +102,7 @@ export async function POST(req) {
       // Robust model list (added 1.5-flash as fallback for wider audio support)
       const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-pro", "gemini-1.5-flash"];
       let finalData = null;
+      const modelErrors = [];
 
       for (const modelName of modelsToTry) {
         try {
@@ -131,10 +132,14 @@ export async function POST(req) {
           break; 
         } catch (e) {
           console.log(`❌ ${modelName} failed: ${e.message}`);
+          modelErrors.push({ model: modelName, error: e.message });
         }
       }
 
-      if (!finalData) throw new Error("Failed to analyze audio. The format might not be supported.");
+      if (!finalData) {
+        console.error("All model attempts failed:", modelErrors);
+        return NextResponse.json({ error: "Failed to analyze audio. The format might not be supported.", details: modelErrors }, { status: 502 });
+      }
 
       return NextResponse.json({ result: finalData.markdown, title: finalData.title });
     } 

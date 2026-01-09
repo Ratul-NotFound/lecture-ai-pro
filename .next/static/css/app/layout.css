@@ -1996,85 +1996,99 @@ video {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 2, 6, 23;
+}
+
 body {
-  background-color: #020617;
-  color: #ffffff;
-  overflow-x: hidden; /* Prevents scrollbars from glowing orbs */
+  color: rgb(var(--foreground-rgb));
+  background: #030712; /* Gray 950 - Slightly warmer dark */
+  overflow-x: hidden;
 }
 
-/* --- FIXED BACKGROUND ORBS --- */
-.live-bg-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1; /* STRICTLY BEHIND CONTENT */
-  overflow: hidden;
-  background: #020617;
-}
-
+/* --- 1. NEBULA ORBS (New Color Palette) --- */
 .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px); /* Heavy blur to prevent "solid block" look */
-  opacity: 0.5;
-  animation: floatOrb 10s infinite ease-in-out alternate;
+  filter: blur(100px); /* Softer blur */
+  opacity: 0.45;
+  mix-blend-mode: screen;
+  animation: drift 25s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -3;
 }
 
-/* Specific Colors & Positions */
+/* Orb 1: Electric Violet (Top Left) */
 .orb-1 { 
-  top: -10%; 
-  left: -10%; 
-  width: 50vw; 
-  height: 50vw; 
-  background: radial-gradient(circle, #3b82f6 0%, transparent 70%);
+  top: -15%; left: -10%; width: 50vw; height: 50vw; 
+  background: #7c3aed; /* Violet 600 */
+  animation-delay: 0s; 
 }
 
+/* Orb 2: Deep Indigo (Bottom Right) */
 .orb-2 { 
-  bottom: -10%; 
-  right: -10%; 
-  width: 40vw; 
-  height: 40vw; 
-  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-  animation-delay: 2s;
+  bottom: -20%; right: -10%; width: 60vw; height: 60vw; 
+  background: #4338ca; /* Indigo 700 */
+  animation-delay: -8s; 
 }
 
+/* Orb 3: Fluorescent Cyan (Center/Floating) */
 .orb-3 { 
-  top: 40%; 
-  left: 30%; 
-  width: 30vw; 
-  height: 30vw; 
-  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  top: 30%; left: 20%; width: 35vw; height: 35vw; 
+  background: #0891b2; /* Cyan 600 */
   opacity: 0.3;
-  animation-delay: 5s;
+  animation-delay: -15s; 
 }
 
-@keyframes floatOrb {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(20px, -20px) scale(1.1); }
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate(40px, -60px) scale(1.1) rotate(20deg); }
+  100% { transform: translate(-30px, 40px) scale(0.95) rotate(-10deg); }
 }
 
-/* GLASS PANEL STYLE */
-.glass {
-  background: rgba(30, 41, 59, 0.4); /* Darker, more legible glass */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+/* --- 2. MOVING GRID --- */
+.bg-grid-moving {
+  position: absolute;
+  inset: 0;
+  background-size: 60px 60px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  -webkit-mask-image: radial-gradient(circle at 50% 0%, black 40%, transparent 80%);
+          mask-image: radial-gradient(circle at 50% 0%, black 40%, transparent 80%);
+  animation: gridMove 40s linear infinite;
+  z-index: -2;
 }
 
-/* TYPOGRAPHY */
-.prose h1, .prose h2 {
-  background: linear-gradient(to right, #60a5fa, #a78bfa);
+@keyframes gridMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(60px); }
+}
+
+/* --- 3. TEXT GRADIENTS --- */
+.text-shimmer {
+  background: linear-gradient(to right, #c084fc 10%, #67e8f9 50%, #c084fc 90%);
+  background-size: 200% auto;
+  color: transparent;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-top: 1.5em;
-  font-weight: 700;
+  background-clip: text;
+  animation: shine 6s linear infinite;
 }
-.prose strong { color: #38bdf8; }
-.prose p { color: #cbd5e1; line-height: 1.7; }
-.prose ul li::marker { color: #818cf8; }
+@keyframes shine { to { background-position: 200% center; } }
+
+/* --- UTILITIES --- */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.2); border-radius: 10px; }
+.perspective-1000 { perspective: 1000px; }
+.preserve-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+
+@media print {
+  .orb, .bg-grid-moving { display: none; }
+  #printable-area { position: absolute; top:0; left:0; width:100%; background:white; color:black; }
+}
+
 @media (min-width: 768px) {
 
   .md\:prose-base {
@@ -2324,191 +2338,243 @@ body {
     margin-bottom: 0;
   }
 }
+
 .selection\:bg-cyan-500\/30 *::-moz-selection {
   background-color: rgb(6 182 212 / 0.3);
 }
+
 .selection\:bg-cyan-500\/30 *::selection {
   background-color: rgb(6 182 212 / 0.3);
 }
+
 .selection\:text-cyan-100 *::-moz-selection {
   --tw-text-opacity: 1;
   color: rgb(207 250 254 / var(--tw-text-opacity, 1));
 }
+
 .selection\:text-cyan-100 *::selection {
   --tw-text-opacity: 1;
   color: rgb(207 250 254 / var(--tw-text-opacity, 1));
 }
+
 .selection\:bg-cyan-500\/30::-moz-selection {
   background-color: rgb(6 182 212 / 0.3);
 }
+
 .selection\:bg-cyan-500\/30::selection {
   background-color: rgb(6 182 212 / 0.3);
 }
+
 .selection\:text-cyan-100::-moz-selection {
   --tw-text-opacity: 1;
   color: rgb(207 250 254 / var(--tw-text-opacity, 1));
 }
+
 .selection\:text-cyan-100::selection {
   --tw-text-opacity: 1;
   color: rgb(207 250 254 / var(--tw-text-opacity, 1));
 }
+
 .hover\:border-gray-600:hover {
   --tw-border-opacity: 1;
   border-color: rgb(75 85 99 / var(--tw-border-opacity, 1));
 }
+
 .hover\:border-white\/20:hover {
   border-color: rgb(255 255 255 / 0.2);
 }
+
 .hover\:border-white\/30:hover {
   border-color: rgb(255 255 255 / 0.3);
 }
+
 .hover\:bg-white\/20:hover {
   background-color: rgb(255 255 255 / 0.2);
 }
+
 .hover\:bg-white\/5:hover {
   background-color: rgb(255 255 255 / 0.05);
 }
+
 .hover\:from-blue-500:hover {
   --tw-gradient-from: #3b82f6 var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(59 130 246 / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
+
 .hover\:from-violet-500:hover {
   --tw-gradient-from: #8b5cf6 var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(139 92 246 / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
+
 .hover\:to-cyan-500:hover {
   --tw-gradient-to: #06b6d4 var(--tw-gradient-to-position);
 }
+
 .hover\:to-fuchsia-500:hover {
   --tw-gradient-to: #d946ef var(--tw-gradient-to-position);
 }
+
 .hover\:text-red-300:hover {
   --tw-text-opacity: 1;
   color: rgb(252 165 165 / var(--tw-text-opacity, 1));
 }
+
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
+
 .hover\:opacity-100:hover {
   opacity: 1;
 }
+
 .focus\:border-cyan-500\/50:focus {
   border-color: rgb(6 182 212 / 0.5);
 }
+
 .focus\:outline-none:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
+
 .focus\:ring-1:focus {
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
+
 .focus\:ring-cyan-500\/50:focus {
   --tw-ring-color: rgb(6 182 212 / 0.5);
 }
+
 .disabled\:cursor-not-allowed:disabled {
   cursor: not-allowed;
 }
+
 .disabled\:opacity-50:disabled {
   opacity: 0.5;
 }
+
 .group\/btn:hover .group-hover\/btn\:translate-y-0 {
   --tw-translate-y: 0px;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+
 .group:hover .group-hover\:translate-y-0 {
   --tw-translate-y: 0px;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+
 .group\/btn:hover .group-hover\/btn\:rotate-12 {
   --tw-rotate: 12deg;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+
 .group\/btn:hover .group-hover\/btn\:scale-125 {
   --tw-scale-x: 1.25;
   --tw-scale-y: 1.25;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+
 .group\/drop:hover .group-hover\/drop\:scale-110 {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+
 .group\/drop:hover .group-hover\/drop\:text-white {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
 }
+
 .prose-headings\:bg-gradient-to-r :is(:where(h1, h2, h3, h4, h5, h6, th):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   background-image: linear-gradient(to right, var(--tw-gradient-stops));
 }
+
 .prose-headings\:from-cyan-100 :is(:where(h1, h2, h3, h4, h5, h6, th):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   --tw-gradient-from: #cffafe var(--tw-gradient-from-position);
   --tw-gradient-to: rgb(207 250 254 / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
 }
+
 .prose-headings\:to-blue-100 :is(:where(h1, h2, h3, h4, h5, h6, th):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   --tw-gradient-to: #dbeafe var(--tw-gradient-to-position);
 }
+
 .prose-headings\:bg-clip-text :is(:where(h1, h2, h3, h4, h5, h6, th):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   -webkit-background-clip: text;
           background-clip: text;
 }
+
 .prose-headings\:text-transparent :is(:where(h1, h2, h3, h4, h5, h6, th):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   color: transparent;
 }
+
 .prose-h2\:mb-4 :is(:where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   margin-bottom: 1rem;
 }
+
 .prose-h2\:mt-8 :is(:where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   margin-top: 2rem;
 }
+
 .prose-h2\:border-b :is(:where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   border-bottom-width: 1px;
 }
+
 .prose-h2\:border-white\/10 :is(:where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   border-color: rgb(255 255 255 / 0.1);
 }
+
 .prose-h2\:pb-2 :is(:where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   padding-bottom: 0.5rem;
 }
+
 .prose-h2\:text-2xl :is(:where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   font-size: 1.5rem;
   line-height: 2rem;
 }
+
 .prose-h2\:font-bold :is(:where(h2):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   font-weight: 700;
 }
+
 .prose-blockquote\:rounded-r-lg :is(:where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
 }
+
 .prose-blockquote\:border-l-cyan-500 :is(:where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   --tw-border-opacity: 1;
   border-left-color: rgb(6 182 212 / var(--tw-border-opacity, 1));
 }
+
 .prose-blockquote\:bg-cyan-900\/10 :is(:where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   background-color: rgb(22 78 99 / 0.1);
 }
+
 .prose-blockquote\:px-4 :is(:where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   padding-left: 1rem;
   padding-right: 1rem;
 }
+
 .prose-blockquote\:py-2 :is(:where(blockquote):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
+
 .prose-strong\:text-cyan-400 :is(:where(strong):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   --tw-text-opacity: 1;
   color: rgb(34 211 238 / var(--tw-text-opacity, 1));
 }
+
 .prose-li\:text-gray-300 :is(:where(li):not(:where([class~="not-prose"],[class~="not-prose"] *))) {
   --tw-text-opacity: 1;
   color: rgb(209 213 219 / var(--tw-text-opacity, 1));
 }
+
 @media (min-width: 768px) {
 
   .md\:block {
@@ -2528,6 +2594,7 @@ body {
     line-height: 2.5rem;
   }
 }
+
 @media (min-width: 1024px) {
 
   .lg\:col-span-5 {
@@ -2547,6 +2614,7 @@ body {
     padding-right: 2rem;
   }
 }
+
 @media print {
 
   .print\:mb-6 {
