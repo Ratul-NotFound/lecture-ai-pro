@@ -627,16 +627,32 @@ export default function Home() {
             visibility: visible;
           }
           #printable-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: auto;
+            position: static !important;
+            left: auto !important;
+            top: auto !important;
+            width: auto !important;
+            height: auto !important;
             background: white !important;
             color: black !important;
             box-shadow: none !important;
             border: none !important;
             padding: 40px !important; 
+          }
+          /* Ensure inner scrollable regions expand when printing */
+          #printable-area * {
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+            box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            page-break-inside: auto !important;
+            break-inside: auto !important;
+          }
+
+          /* Allow text and blocks to flow across pages */
+          #printable-area img, #printable-area pre, #printable-area code {
+            max-width: 100% !important;
+            page-break-inside: avoid !important;
           }
           ::-webkit-scrollbar {
              display: none;
