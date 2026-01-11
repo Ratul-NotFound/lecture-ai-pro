@@ -99,8 +99,8 @@ export async function POST(req) {
       const mimeType = getGeminiMimeType(file);
       console.log(`ℹ️ Using MIME Type: ${mimeType}`);
 
-      // Robust model list (added 1.5-flash as fallback for wider audio support)
-      const modelsToTry = ["gemini-2.5-flash", "gemini-1.5-pro", "gemini-1.5-flash"];
+      // Robust model list (updated to current available models)
+      const modelsToTry = ["gemini-3-flash", "gemini-3-pro", "gemini-2.5-flash"];
       let finalData = null;
       const modelErrors = [];
 
@@ -132,6 +132,11 @@ export async function POST(req) {
           break; 
         } catch (e) {
           console.log(`❌ ${modelName} failed: ${e.message}`);
+          // If the API key was reported as leaked, stop and return a clear 403
+          if (e?.message?.includes("reported as leaked")) {
+            console.error("Detected leaked API key for Google Generative AI.");
+            return NextResponse.json({ error: "Your Google API key was reported as leaked. Rotate the key in Google Cloud and update the GEMINI_API_KEY environment variable." }, { status: 403 });
+          }
           modelErrors.push({ model: modelName, error: e.message });
         }
       }
